@@ -112,14 +112,16 @@ class Board{
 				for(int k = 0; k < enemyShips.size(); k++){
 					for(int l = 0; l < enemyShips.get(k).dead.size(); l++){
 						if(enemyShips.get(k).dead.get(l).x == i && enemyShips.get(k).dead.get(l).y == j){
-							System.out.print("D ");
+							System.out.print("X ");
 							special = true;
 						}
 					}
 				}
+				
 				if(!special){
 					System.out.print("~ ");
 				}
+				
 				else{
 					special = false;
 				}
@@ -131,53 +133,7 @@ class Board{
 	}
 	
 	void addShip(int length){
-		boolean vertical;
-		Scanner in = new Scanner(System.in);
 		
-		System.out.println("Place a length " + length + " ship: vertical(V) or horizontal(H)\n");
-		char orient = in.next().toLowerCase().charAt(0);
-		if(orient == 'v'){
-			vertical = true;
-		}
-		else{
-			vertical = false;
-		}
-		boolean valid = true;
-		do{
-			if(!valid){
-				System.out.println("Your placement must not collide with existing pieces and must fit on the board");
-			}
-			System.out.println("Where will you place the start of this ship?");
-			int x = in.nextInt();
-			int y = in.nextInt();
-			while(x > 9 || x < 0){
-				System.out.println("Please give row value between 0 and 9:");
-				x = in.nextInt();
-			}
-			while(y > 9 || y < 0){
-				System.out.println("Please give column value between 0 and 9:");
-				x = in.nextInt();
-			}
-			if(!vertical){
-				if(x <= length - 5){
-					userShips.add(new Ship(new Point(x,y),false,5));
-				}
-				else{
-					valid = false;
-				}
-			}
-			if(vertical){
-				if(x <= length - 5){
-					userShips.add(new Ship(new Point(x,y),true,5));
-				}
-				else{
-					valid = false;
-				}
-			}
-			
-		}while(!valid);
-
-		in.close();
 	}
 }
 
@@ -200,6 +156,8 @@ public class main {
 		
 		//field.addShip(5);
 		field.enemyShips.add(new Ship(new Point(0,1),true,5));
+		field.enemyShips.add(new Ship(new Point(2,3),true,2));
+		field.enemyShips.add(new Ship(new Point(3,4),true,3));
 		field.printBoard();
 		
 		input.close();
