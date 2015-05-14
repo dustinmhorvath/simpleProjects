@@ -112,7 +112,15 @@ class Board{
 			System.out.println("Hit! @ (" + p.x + "," + p.y + ").");
 		}
 		else{
-			misses.add(new Point(p.x, p.y));
+			boolean exists = false;
+			for(int i = 0; i < misses.size(); i++){
+				if(misses.get(i).x == p.x && misses.get(i).y == p.y){
+					exists = true;
+				}
+			}
+			if(!exists){
+				misses.add(new Point(p.x, p.y));
+			}
 			printBoard();
 			System.out.println("(" + p.x + "," + p.y + ") was a miss.");
 		}
@@ -180,7 +188,8 @@ class Board{
 		System.out.println();
 	}
 	
-	// Method that adds a ship to the board, implements collision detection.
+	// Method that adds a ship to the board, implements collision detection. Returns true
+	//  if there was a collision.
 	boolean addShip(ArrayList<Ship> array, Point start, boolean vertical, int length){
 		boolean bump = false;
 		for(int i = 0; i < enemyShips.size(); i++){
@@ -234,9 +243,9 @@ public class main {
 	public static void main(String[] args) {
 		Scanner input = new Scanner(System.in);
 		
-		
+		// Display welcome, create 10x10 board.
 		System.out.println("Welcome to battleship!\n");
-		Board field = new Board(10);
+		Board field = new Board(15);
 		
 		field.printBoard();
 		// 1 length 2 ship
