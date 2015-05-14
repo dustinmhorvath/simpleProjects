@@ -1,5 +1,6 @@
 import java.util.*;
-import java.lang.String;;
+import java.lang.String;
+import java.math.*;
 
 class Point{
 	int x;
@@ -110,8 +111,8 @@ class Board{
 					}
 				}
 				for(int k = 0; k < enemyShips.size(); k++){
-					for(int l = 0; l < enemyShips.get(k).dead.size(); l++){
-						if(enemyShips.get(k).dead.get(l).x == i && enemyShips.get(k).dead.get(l).y == j){
+					for(int l = 0; l < enemyShips.get(k).live.size(); l++){
+						if(enemyShips.get(k).live.get(l).x == i && enemyShips.get(k).live.get(l).y == j){
 							System.out.print("X ");
 							special = true;
 						}
@@ -132,8 +133,41 @@ class Board{
 		System.out.println();
 	}
 	
-	void addShip(int length){
+	boolean addShip(ArrayList<Ship> array, Point start, boolean vertical, int length){
+		boolean bump = false;
+		for(int i = 0; i < enemyShips.size(); i++){
+			if(new Ship(start, vertical, length).collidesWith(enemyShips.get(i))){
+				bump = true;
+			}
+		}
+		for(int i = 0; i < userShips.size(); i++){
+			if(new Ship(start, vertical, length).collidesWith(userShips.get(i))){
+				bump = true;
+			}
+		}
+		if(!bump){
+			array.add(new Ship(start,vertical,length));
+		}
 		
+		return bump;
+	}
+	
+	void addEnemy(int length){
+		Random rand = new Random();
+		boolean vertical = rand.nextBoolean();
+
+		if(vertical){
+			while(addShip(	enemyShips,
+							new Point(rand.nextInt((side - length - 0) + 1) + 0, rand.nextInt((side - 1 - 0) + 1) + 0),
+							vertical,
+							length));
+		}
+		else{
+			while(addShip(	enemyShips,
+							new Point(rand.nextInt((side - 1 - 0) + 1) + 0, rand.nextInt((side - length - 0) + 1) + 0),
+							vertical,
+							length));
+		}
 	}
 }
 
@@ -154,11 +188,12 @@ public class main {
 		
 		
 		
-		//field.addShip(5);
-		field.enemyShips.add(new Ship(new Point(0,1),true,5));
-		field.enemyShips.add(new Ship(new Point(2,3),true,2));
-		field.enemyShips.add(new Ship(new Point(3,4),true,3));
+		// Randomly place enemy pieces
+		
+		field.addEnemy(5);
 		field.printBoard();
+		
+		
 		
 		input.close();
 	}
