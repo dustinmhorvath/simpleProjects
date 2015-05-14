@@ -101,10 +101,6 @@ class Board{
 				}
 				hit = true;
 				enemyShips.get(i).shotFiredAtPoint(p);
-				
-			}
-			else{
-
 			}
 		}
 		if(hit){
@@ -112,13 +108,16 @@ class Board{
 			System.out.println("Hit! @ (" + p.x + "," + p.y + ").");
 		}
 		else{
-			boolean exists = false;
-			for(int i = 0; i < misses.size(); i++){
-				if(misses.get(i).x == p.x && misses.get(i).y == p.y){
-					exists = true;
+			boolean exists = true;
+			for(int j = 0; j < misses.size(); j++){
+				if(misses.get(j).x == p.x && misses.get(j).y == p.y){
+					exists = false;
 				}
 			}
 			if(!exists){
+				//misses.add(new Point(p.x, p.y));
+			}
+			else{
 				misses.add(new Point(p.x, p.y));
 			}
 			printBoard();
@@ -149,7 +148,7 @@ class Board{
 			for(int j = 0; j < side; j++){
 				boolean special = false;
 				for(int k = 0; k < userShips.size(); k++){
-					if(userShips.get(k).containsPoint(new Point(i,j))){
+					if(userShips.get(k).containsPoint(new Point(j,i))){
 						System.out.print("F ");
 						special = true;
 					}
@@ -172,7 +171,6 @@ class Board{
 				if(!special){
 					System.out.print("~ ");
 				}
-				
 				else{
 					special = false;
 				}
@@ -245,7 +243,7 @@ public class main {
 		
 		// Display welcome, create 10x10 board.
 		System.out.println("Welcome to battleship!\n");
-		Board field = new Board(15);
+		Board field = new Board(10);
 		
 		field.printBoard();
 		// 1 length 2 ship
