@@ -58,9 +58,9 @@ class Ship{
 	
 	void shotFiredAtPoint(Point p){
 		if(isHitAtPoint(p)){
-			dead.add(p);
+			dead.add(new Point(p.x, p.y));
 			int index = 0;
-			while(live.get(index) != p){
+			while(live.get(index).x != p.x && live.get(index).y != p.y){
 				index++;
 			}
 			live.remove(index);
@@ -70,10 +70,12 @@ class Ship{
 	boolean isHitAtPoint(Point p){
 		boolean hit = false;
 		for(int i = 0; i < live.size(); i++){
-			if(live.get(i) == p){
+			if(live.get(i).x == p.x && live.get(i).y == p.y){
+				
 				hit = true;
 			}
 		}
+		
 		return hit;
 	}
 	
@@ -87,6 +89,35 @@ class Board{
 	ArrayList<Point> boardList;
 	ArrayList<Ship> userShips = new ArrayList<Ship>();
 	ArrayList<Ship> enemyShips = new ArrayList<Ship>();
+	
+	boolean shootAtEnemy(Point p){
+		boolean hit = false;
+		int shipIndex = -1;
+		for(int i = 0; i < enemyShips.size(); i++){
+			if(enemyShips.get(i).isHitAtPoint(p)){
+				if(enemyShips.get(i).live.size() == 1){
+					shipIndex = i;
+				}
+				hit = true;
+				printBoard();
+				enemyShips.get(i).shotFiredAtPoint(p);
+				
+			}
+		}
+		printBoard();
+		if(hit){
+			System.out.println("Hit! @ (" + p.x + "," + p.y + ").");
+		}
+		else{
+			System.out.println("(" + p.x + "," + p.y + ") was a miss.");
+		}
+
+		if(shipIndex > -1){
+			System.out.println("Ship of length " + enemyShips.get(shipIndex).length + " has been sunk!");
+			//enemyShips.remove(shipIndex);
+		}
+		return true;
+	}
 	
 	Board(int side){
 		this.side = side;
@@ -111,8 +142,8 @@ class Board{
 					}
 				}
 				for(int k = 0; k < enemyShips.size(); k++){
-					for(int l = 0; l < enemyShips.get(k).live.size(); l++){
-						if(enemyShips.get(k).live.get(l).x == i && enemyShips.get(k).live.get(l).y == j){
+					for(int l = 0; l < enemyShips.get(k).dead.size(); l++){
+						if(enemyShips.get(k).dead.get(l).x == j && enemyShips.get(k).dead.get(l).y == i){
 							System.out.print("X ");
 							special = true;
 						}
@@ -130,9 +161,15 @@ class Board{
 			}
 			System.out.println();
 		}
+		
+		System.out.print("  ");
+		for(int i = 0; i < side; i++){
+			System.out.print(i + " ");
+		}
 		System.out.println();
 	}
 	
+	// Method that adds a ship to the board, implements collision detection.
 	boolean addShip(ArrayList<Ship> array, Point start, boolean vertical, int length){
 		boolean bump = false;
 		for(int i = 0; i < enemyShips.size(); i++){
@@ -152,6 +189,8 @@ class Board{
 		return bump;
 	}
 	
+	// Method that adds an enemy of a given length randomly to the board. Utilizes
+	//  the addShip method for collision detection.
 	void addEnemy(int length){
 		Random rand = new Random();
 		boolean vertical = rand.nextBoolean();
@@ -168,6 +207,14 @@ class Board{
 							vertical,
 							length));
 		}
+	}
+	
+	int liveEnemies(){
+		int tiles = 0;
+			for(int i = 0; i < enemyShips.size(); i++){
+				tiles = tiles + enemyShips.get(i).live.size();
+			}
+		return tiles;
 	}
 }
 
@@ -186,14 +233,25 @@ public class main {
 		// 1 length 4
 		// 1 length 5
 		
-		
-		
 		// Randomly place enemy pieces
-		
 		field.addEnemy(5);
+		field.addEnemy(4);
+		field.addEnemy(3);
+		field.addEnemy(3);
+		field.addEnemy(2);
 		field.printBoard();
 		
+		while(field.liveEnemies() > 0){
+			System.out.println("Where will you shoot next?");
+			String str = input.nextLine();
+			String[] coords = str.replaceAll("^\\D+","").split("\\D+");
+			System.out.println(coords[0] + " " + coords[1]);
+			
+			
+			field.shootAtEnemy(new Point(Integer.parseInt(coords[0]),Integer.parseInt(coords[1])));
+		}
 		
+		System.out.println("\nYou've destroyed the enemy!");
 		
 		input.close();
 	}
