@@ -87,6 +87,7 @@ class Ship{
 class Board{
 	int side;
 	ArrayList<Point> boardList;
+	ArrayList<Point> misses = new ArrayList<Point>();
 	ArrayList<Ship> userShips = new ArrayList<Ship>();
 	ArrayList<Ship> enemyShips = new ArrayList<Ship>();
 	
@@ -99,16 +100,20 @@ class Board{
 					shipIndex = i;
 				}
 				hit = true;
-				printBoard();
 				enemyShips.get(i).shotFiredAtPoint(p);
 				
 			}
+			else{
+
+			}
 		}
-		printBoard();
 		if(hit){
+			printBoard();
 			System.out.println("Hit! @ (" + p.x + "," + p.y + ").");
 		}
 		else{
+			misses.add(new Point(p.x, p.y));
+			printBoard();
 			System.out.println("(" + p.x + "," + p.y + ") was a miss.");
 		}
 
@@ -147,6 +152,12 @@ class Board{
 							System.out.print("X ");
 							special = true;
 						}
+					}
+				}
+				for(int k = 0; k < misses.size(); k++){
+					if(misses.get(k).x == j && (misses.get(k).y == i)){
+						System.out.print(". ");
+						special = true;
 					}
 				}
 				
@@ -239,13 +250,12 @@ public class main {
 		field.addEnemy(3);
 		field.addEnemy(3);
 		field.addEnemy(2);
-		field.printBoard();
 		
 		while(field.liveEnemies() > 0){
 			System.out.println("Where will you shoot next?");
 			String str = input.nextLine();
 			String[] coords = str.replaceAll("^\\D+","").split("\\D+");
-			System.out.println(coords[0] + " " + coords[1]);
+			//System.out.println(coords[0] + " " + coords[1]);
 			
 			
 			field.shootAtEnemy(new Point(Integer.parseInt(coords[0]),Integer.parseInt(coords[1])));
