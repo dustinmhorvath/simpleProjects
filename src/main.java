@@ -37,13 +37,15 @@ class Ship{
 	boolean containsPoint(Point P){
 		boolean on = false;
 		for(int i = 0; i < this.length; i++){
-			if(live.get(i).x == P.x && live.get(i).y == P.y){
+			if((live.get(i).x == P.x && live.get(i).y == P.y)){ // || (dead.get(i).x == P.x && dead.get(i).y == P.y)){
 				on = true;
 			}
 		}
+		
 		return on;
 	}
 	
+	// Only use for initial adding
 	boolean collidesWith(Ship S){
 		boolean hits = false;
 		for(int i = 0; i < this.live.size(); i++){
@@ -92,18 +94,28 @@ class Board{
 	ArrayList<Ship> enemyShips = new ArrayList<Ship>();
 	
 	boolean shootAtEnemy(Point p){
-		boolean hit = false;
+		boolean hitLive = false;
+		boolean hitDead= false;
 		int shipIndex = -1;
 		for(int i = 0; i < enemyShips.size(); i++){
-			if(enemyShips.get(i).isHitAtPoint(p)){
-				if(enemyShips.get(i).live.size() == 1){
-					shipIndex = i;
+			for(int j = 0; j < enemyShips.get(i).live.size(); j++){
+				if(enemyShips.get(i).live.get(j).x == p.x && enemyShips.get(i).live.get(j).y == p.y){
+					if(enemyShips.get(i).live.size() == 1){
+						shipIndex = i;
+					}
+					hitLive = true;
+					enemyShips.get(i).shotFiredAtPoint(p);
 				}
-				hit = true;
-				enemyShips.get(i).shotFiredAtPoint(p);
 			}
+			
+			for(int j = 0; j < enemyShips.get(i).dead.size(); j++){
+				if(enemyShips.get(i).dead.get(j).x == p.x && enemyShips.get(i).dead.get(j).y == p.y){
+					hitDead = true;
+				}
+			}
+			
 		}
-		if(hit){
+		if(hitLive){
 			printBoard();
 			System.out.println("Hit! @ (" + p.x + "," + p.y + ").");
 		}
@@ -147,12 +159,27 @@ class Board{
 			System.out.print(i +" ");
 			for(int j = 0; j < side; j++){
 				boolean special = false;
+				/*
 				for(int k = 0; k < userShips.size(); k++){
 					if(userShips.get(k).containsPoint(new Point(j,i))){
 						System.out.print("F ");
 						special = true;
 					}
 				}
+				*/
+				
+				// FOR TESTING
+				// Prints live enemy tiles
+				/*
+				for(int k = 0; k < enemyShips.size(); k++){
+					for(int l = 0; l < enemyShips.get(k).live.size(); l++){
+						if(enemyShips.get(k).live.get(l).x == j && enemyShips.get(k).live.get(l).y == i){
+							System.out.print("L ");
+							special = true;
+						}
+					}
+				}
+				*/
 				for(int k = 0; k < enemyShips.size(); k++){
 					for(int l = 0; l < enemyShips.get(k).dead.size(); l++){
 						if(enemyShips.get(k).dead.get(l).x == j && enemyShips.get(k).dead.get(l).y == i){
@@ -266,6 +293,8 @@ public class main {
 			
 			
 			field.shootAtEnemy(new Point(Integer.parseInt(coords[0]),Integer.parseInt(coords[1])));
+			
+			
 		}
 		
 		System.out.println("\nYou've destroyed the enemy!");
