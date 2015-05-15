@@ -96,40 +96,55 @@ class Board{
 	boolean shootAtEnemy(Point p){
 		boolean hitLive = false;
 		boolean hitDead= false;
+		boolean miss = false;
 		int shipIndex = -1;
+		char x = 'x';
 		for(int i = 0; i < enemyShips.size(); i++){
-			for(int j = 0; j < enemyShips.get(i).live.size(); j++){
-				if(enemyShips.get(i).live.get(j).x == p.x && enemyShips.get(i).live.get(j).y == p.y){
-					if(enemyShips.get(i).live.size() == 1){
-						shipIndex = i;
-					}
-					hitLive = true;
-					enemyShips.get(i).shotFiredAtPoint(p);
-				}
-			}
 			
 			for(int j = 0; j < enemyShips.get(i).dead.size(); j++){
 				if(enemyShips.get(i).dead.get(j).x == p.x && enemyShips.get(i).dead.get(j).y == p.y){
 					hitDead = true;
+					x = 'D';
 				}
 			}
+			
+			// TROUBLE IN HERE
+			if(!hitDead){
+				for(int j = 0; j < enemyShips.get(i).live.size(); j++){
+					if(enemyShips.get(i).live.get(j).x == p.x && enemyShips.get(i).live.get(j).y == p.y){
+						if(enemyShips.get(i).live.size() == 1){
+							shipIndex = i;
+						}
+						hitLive = true;
+						x = 'L';
+						enemyShips.get(i).shotFiredAtPoint(p);
+					}
+				}
+			}
+			else{
+				miss = true;
+			}
+			
 			
 		}
 		if(hitLive){
 			printBoard();
 			System.out.println("Hit! @ (" + p.x + "," + p.y + ").");
 		}
-		else{
-			boolean exists = true;
+		if(hitDead){
+			printBoard();
+			System.out.println("(" + p.x + "," + p.y + ") was a miss.");
+		}
+		if(miss){
+			boolean exists = false;
 			for(int j = 0; j < misses.size(); j++){
 				if(misses.get(j).x == p.x && misses.get(j).y == p.y){
-					exists = false;
+					x = 'p';
+					exists = true;
 				}
 			}
 			if(!exists){
-				//misses.add(new Point(p.x, p.y));
-			}
-			else{
+				x = 'n';
 				misses.add(new Point(p.x, p.y));
 			}
 			printBoard();
@@ -140,6 +155,8 @@ class Board{
 			System.out.println("Ship of length " + enemyShips.get(shipIndex).length + " has been sunk!");
 			//enemyShips.remove(shipIndex);
 		}
+		
+		System.out.println(p.x + " " + p.y + " " + x);
 		return true;
 	}
 	
@@ -159,6 +176,7 @@ class Board{
 			System.out.print(i +" ");
 			for(int j = 0; j < side; j++){
 				boolean special = false;
+				
 				/*
 				for(int k = 0; k < userShips.size(); k++){
 					if(userShips.get(k).containsPoint(new Point(j,i))){
@@ -167,41 +185,41 @@ class Board{
 					}
 				}
 				*/
+				if(!special){
+					for(int k = 0; k < enemyShips.size(); k++){
+						for(int l = 0; l < enemyShips.get(k).dead.size(); l++){
+							if(enemyShips.get(k).dead.get(l).x == j && enemyShips.get(k).dead.get(l).y == i){
+								System.out.print("X ");
+								special = true;
+							}
+						}
+					}
+				}
+				if(!special){
+					for(int k = 0; k < misses.size(); k++){
+						if(misses.get(k).x == j && (misses.get(k).y == i)){
+							System.out.print(". ");
+							special = true;
+						}
+					}
+				}	
+				if(!special){
+					for(int k = 0; k < enemyShips.size(); k++){
+						for(int l = 0; l < enemyShips.get(k).live.size(); l++){
+							if(enemyShips.get(k).live.get(l).x == j && enemyShips.get(k).live.get(l).y == i){
+								System.out.print("~ ");
+								special = true;
+							}
+						}
+					}
+				}
 				
-				// FOR TESTING
-				// Prints live enemy tiles
-				/*
-				for(int k = 0; k < enemyShips.size(); k++){
-					for(int l = 0; l < enemyShips.get(k).live.size(); l++){
-						if(enemyShips.get(k).live.get(l).x == j && enemyShips.get(k).live.get(l).y == i){
-							System.out.print("L ");
-							special = true;
-						}
-					}
-				}
-				*/
-				for(int k = 0; k < enemyShips.size(); k++){
-					for(int l = 0; l < enemyShips.get(k).dead.size(); l++){
-						if(enemyShips.get(k).dead.get(l).x == j && enemyShips.get(k).dead.get(l).y == i){
-							System.out.print("X ");
-							special = true;
-						}
-					}
-				}
-				for(int k = 0; k < misses.size(); k++){
-					if(misses.get(k).x == j && (misses.get(k).y == i)){
-						System.out.print(". ");
-						special = true;
-					}
-				}
 				
 				if(!special){
 					System.out.print("~ ");
 				}
-				else{
-					special = false;
-				}
-				
+
+				special = false;
 			}
 			System.out.println();
 		}
@@ -266,6 +284,7 @@ class Board{
 public class main {
 
 	public static void main(String[] args) {
+		//Scanner input = new Scanner(System.in);
 		Scanner input = new Scanner(System.in);
 		
 		// Display welcome, create 10x10 board.
@@ -285,14 +304,24 @@ public class main {
 		field.addEnemy(3);
 		field.addEnemy(2);
 		
+		String str;
+		String[] coords;
+		
 		while(field.liveEnemies() > 0){
 			System.out.println("Where will you shoot next?");
-			String str = input.nextLine();
-			String[] coords = str.replaceAll("^\\D+","").split("\\D+");
-			//System.out.println(coords[0] + " " + coords[1]);
-			
+			str = input.nextLine();  //
+			coords = str.replaceAll("^\\D+","").split("\\D+");
+			//System.out.println(coords[0] + " " + coords[1]); //for troubleshooting
 			
 			field.shootAtEnemy(new Point(Integer.parseInt(coords[0]),Integer.parseInt(coords[1])));
+			
+			/*
+			for(int i = 0; i < field.side; i++){
+				for(int j = 0; j < field.side; j++){
+					field.shootAtEnemy(new Point(i,j));
+				}
+			}
+			*/
 			
 			
 		}
