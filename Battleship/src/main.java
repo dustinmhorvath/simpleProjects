@@ -1,3 +1,5 @@
+package src;
+
 import java.util.*;
 import java.lang.String;
 import java.math.*;
@@ -121,7 +123,7 @@ class Board{
 					}
 				}
 			}
-			else{
+			if(!hitDead && !hitLive){
 				miss = true;
 			}
 			
